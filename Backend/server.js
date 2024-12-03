@@ -3,39 +3,24 @@
 import express from 'express';
 // importing dotenv
 import dotenv from 'dotenv';
-import { connect } from 'mongoose';
+import mongoose, { connect } from 'mongoose';
 import {connectDB} from './config/db.js';
+
+import productRoutes from "./routes/product.route.js";
+
 dotenv.config();
 
 //function calling
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 //allow us to accept json data in the req.body
 app.use(express.json());
 
-//route method post is basically when we create something it will store
-app.post("/api/products", async(req, res) =>{
-    const product = req.body; //user will send this data
-    if(!product.name || !product.price || !product.image){
-        return res.status(400).json({success: false, message: "All fields are required"});
-    }
-
-    const newProduct = new Product(product);
-
-    try {
-        await newProduct.save();
-        res.status(201).json({success: true, data: newProduct});
-    } catch (error) {
-        console.error("Error in creating product:", error.message);
-        res.status(500).json({success: false, message: "Internal server error"});
-    }
-});
-
-// Call the mongo URI from .env
-// console.log(process.env.MONGO_URI);
+app.use("/api/products", productRoutes);
 
 //port
-app.listen(5000, ()=> {
+app.listen(PORT, ()=> {
     connectDB();
-    console.log("sever started at http://localhost:5000");
+    console.log("sever started at http://localhost:"+PORT);
 });
